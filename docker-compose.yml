@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  mysql-tpfinal:
+    image: mysql
+    container_name: mysql-tpfinal
+    networks:
+      - tpfinal-test
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: node-complete
+    ports:
+      - "50:3306"
+
+  phpmyadmin-tpfinal:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-tpfinal
+    networks:
+      - tpfinal-test
+    environment:
+      PMA_HOST: mysql-tpfinal
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "52:80"
+    depends_on:
+      - mysql-tpfinal
+
+  mi-app-node:
+    build:
+      context: ./Skyloft  # Ruta relativa al Dockerfile
+      dockerfile: Dockerfile  # Ajusta el nombre del Dockerfile si es diferente
+    image: mi-app-node
+    container_name: mi-app-tpfinal
+    networks:
+      - tpfinal-test
+    links:
+      - mysql-tpfinal
+    ports:
+      - "51:3000"
+
+  watchtower:
+    container_name: watchtower-tpfinal
+    image: containrrr/watchtower
+    environment:
+      - WATCHTOWER_CLEANUP=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - mi-app-node
+    restart: always
+
+networks:
+  tpfinal-test:
+    driver: bridge
