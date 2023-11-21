@@ -28,13 +28,14 @@ services:
 
   mi-app-node:
     build:
-      context: ./Skyloft  # Ruta relativa al Dockerfile
-      dockerfile: Dockerfile  # Ajusta el nombre del Dockerfile si es diferente
+      context: ./Skyloft
+      dockerfile: Dockerfile  
     image: mi-app-node
     container_name: mi-app-tpfinal
     networks:
       - tpfinal-test
-    links:
+    restart: unless-stopped
+    depends_on:
       - mysql-tpfinal
     ports:
       - "51:3000"
@@ -52,4 +53,5 @@ services:
 
 networks:
   tpfinal-test:
-    driver: bridge
+     driver: bridge
+     external: true
