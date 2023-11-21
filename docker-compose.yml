@@ -49,7 +49,7 @@ services:
     depends_on:
       - mi-app-node
     restart: always
-    command: --interval 30 mi-app-node
+    command: --interval 30 mi-app-node-tpfinal
 
 networks:
   tpfinal-test:
