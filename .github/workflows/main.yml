@@ -24,4 +24,4 @@ jobs:
           context: ./Skyloft
           file: ./Skyloft/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/Skyloft:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mi-app-node:latest

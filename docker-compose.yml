@@ -29,8 +29,7 @@ services:
   mi-app-node:
     build:
       context: ./Skyloft
-      dockerfile: Dockerfile  
-    image: mi-app-node
+    image: barrierht/mi-app-node:latest
     container_name: mi-app-tpfinal
     networks:
       - tpfinal-test
