@@ -1,5 +1,5 @@
 # HIA-TPFinal
-Trabajo Practico Final de Herramientas Avanzadas XDDDD
+Trabajo Practico Final de Herramientas Avanzadas 2023 xd
 
 - Cruz, Martín Ignacio - DNI: 45327608 - LU: APU005545
 - Romero, Facundo José - DNI: 44898160 - LU: APU005609 
