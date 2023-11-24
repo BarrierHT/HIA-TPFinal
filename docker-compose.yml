@@ -1,22 +1,63 @@
 version: '3'
 
 services:
+  management1-tpfinal:
+    image: mysql/mysql-cluster:latest
+    container_name: management1-tpfinal
+    networks:
+      cluster-test-tpfinal:
+        ipv4_address: 174.17.0.2
+    command: ndb_mgmd --ndb-nodeid=1 --reload --initial
+    volumes:
+      - C:/docker-data/tpfinal/config/my.cnf:/etc/my.cnf
+      - C:/docker-data/tpfinal/config/mysql-cluster.cnf:/etc/mysql-cluster.cnf
+    hostname: management1
+    restart: unless-stopped
+
+  ndb1-tpfinal:
+    image: mysql/mysql-cluster:latest
+    container_name: ndb1-tpfinal
+    networks:
+      cluster-test-tpfinal:
+        ipv4_address: 174.17.0.3
+    command: ndbd --ndb-nodeid=2 --connect-string 174.17.0.2
+    volumes:
+      - C:/docker-data/tpfinal/config/mysql-cluster.cnf:/etc/mysql-cluster.cnf
+    restart: unless-stopped
+
+  ndb2-tpfinal:
+    image: mysql/mysql-cluster:latest
+    container_name: ndb2-tpfinal
+    networks:
+      cluster-test-tpfinal:
+        ipv4_address: 174.17.0.4
+    command: ndbd --ndb-nodeid=3 --connect-string 174.17.0.2 
+    volumes:
+      - C:/docker-data/tpfinal/config/mysql-cluster.cnf:/etc/mysql-cluster.cnf
+    restart: unless-stopped
+
   mysql-tpfinal:
-    image: mysql
+    image: mysql/mysql-cluster:latest
     container_name: mysql-tpfinal
     networks:
-      - tpfinal-test
+      cluster-test-tpfinal:
+        ipv4_address: 174.17.0.10
+    command: mysqld --ndb-nodeid=4 --ndb-connectstring 174.17.0.2
+    volumes:
+      - C:/docker-data/tpfinal/config/mysql-cluster.cnf:/etc/mysql-cluster.cnf
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'
       MYSQL_DATABASE: node-complete
     ports:
       - "50:3306"
+    restart: unless-stopped
 
   phpmyadmin-tpfinal:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin
     container_name: phpmyadmin-tpfinal
     networks:
-      - tpfinal-test
+      - cluster-test-tpfinal
     environment:
       PMA_HOST: mysql-tpfinal
       PMA_USER: root
@@ -26,32 +67,32 @@ services:
     depends_on:
       - mysql-tpfinal
 
-  mi-app-node:
+  mi-app-tpfinal:
     build:
       context: ./Skyloft
     image: barrierht/mi-app-node:latest
     container_name: mi-app-tpfinal
     networks:
-      - tpfinal-test
-    restart: unless-stopped
-    depends_on:
+      - cluster-test-tpfinal
+    links:
       - mysql-tpfinal
     ports:
       - "51:3000"
+    restart: unless-stopped
 
   watchtower:
     container_name: watchtower-tpfinal
+    networks:
+      - cluster-test-tpfinal
     image: containrrr/watchtower
     environment:
       - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=10
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - mi-app-node
-    restart: always
-    command: --interval 30 mi-app-tpfinal
+      - mi-app-tpfinal
 
 networks:
-  tpfinal-test:
-     driver: bridge
-     external: true
+  cluster-test-tpfinal:
+    external: true
